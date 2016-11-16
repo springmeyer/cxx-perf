@@ -9,6 +9,7 @@
 #if defined(SPP_NO_CXX11_RVALUE_REFERENCES)
 #warning "problem: we expect spp will detect we have rvalue support"
 #endif
+
 /*
 
 clang++ -O3 -std=c++11 -DNDEBUG small_insertions.cpp -o t;./t
@@ -36,6 +37,7 @@ class custom_type {
 
 void test(std::size_t iterations, std::size_t container_size) {
     std::clog << "bench: iterations: " << iterations <<  " / container_size: "  << container_size << "\n";
+    auto search = std::to_string(container_size - 1);
     {
         std::size_t count = 0;
         auto t1 = std::chrono::high_resolution_clock::now();
@@ -44,6 +46,12 @@ void test(std::size_t iterations, std::size_t container_size) {
             m.reserve(container_size);
             for (std::size_t j=0;j<container_size;++j) {
                 m.emplace(std::to_string(j),custom_type());                
+            }
+            for (std::size_t j=0;j<container_size;++j) {
+                auto itr = m.find(search);
+                if (itr == m.end()) {
+                    abort();
+                }
             }
             count += m.size();
         }
@@ -62,6 +70,12 @@ void test(std::size_t iterations, std::size_t container_size) {
             std::map<std::string,custom_type> m;
             for (std::size_t j=0;j<container_size;++j) {
                 m.emplace(std::to_string(j),custom_type());                
+            }
+            for (std::size_t j=0;j<container_size;++j) {
+                auto itr = m.find(search);
+                if (itr == m.end()) {
+                    abort();
+                }
             }
             count += m.size();
         }
@@ -82,6 +96,17 @@ void test(std::size_t iterations, std::size_t container_size) {
             for (std::size_t j=0;j<container_size;++j) {
                 m.emplace_back(std::to_string(j),custom_type());                
             }
+            for (std::size_t j=0;j<container_size;++j) {
+                bool hit = false;
+                for (auto const& item : m) {
+                    if (item.first == search) {
+                        hit = true;
+                    }
+                }
+                if (!hit) {
+                    abort();
+                }
+            }
             count += m.size();
         }
         auto t2 = std::chrono::high_resolution_clock::now();
@@ -100,6 +125,12 @@ void test(std::size_t iterations, std::size_t container_size) {
             m.reserve(container_size);
             for (std::size_t j=0;j<container_size;++j) {
                 m.emplace(std::to_string(j),custom_type());
+            }
+            for (std::size_t j=0;j<container_size;++j) {
+                auto itr = m.find(search);
+                if (itr == m.end()) {
+                    abort();
+                }
             }
             count += m.size();
         }
